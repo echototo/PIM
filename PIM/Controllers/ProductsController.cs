@@ -7,17 +7,25 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using PIM.Models;
+using System.IO;
 
 namespace PIM.Controllers
 {
     public class ProductsController : Controller
     {
         private ProductContext db = new ProductContext();
-
+ 
         // GET: Products
-        public ActionResult Index()
+        public ActionResult Index(string searchString)
         {
-            return View(db.Products.ToList());
+            var products = from p in db.Products
+                           select p;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                products = products.Where(p => p.Nom.Contains(searchString));
+            }
+            return View(products);
         }
 
         // GET: Products/Details/5
@@ -80,8 +88,21 @@ namespace PIM.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "ID,Nom,Prix,Description,Famille,Reference,DateValid")] Product product)
         {
+                HttpPostedFileBase file = Request.Files["photo"];
+
+                if (file != null && file.ContentLength > 0)
+                {
+                    // extract only the fielname
+                    var fileName = Path.GetFileName(file.FileName);
+                    // store the file inside ~/App_Data/uploads folder
+                    var path = Path.Combine(Server.MapPath("~/Content/"), fileName);
+                    file.SaveAs(path);
+                }
+            
+
             if (ModelState.IsValid)
             {
+                product.Image = file.FileName;
                 db.Entry(product).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");

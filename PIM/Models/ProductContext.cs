@@ -2,6 +2,7 @@
 {
     using MySql.Data.Entity;
     using System;
+    using System.ComponentModel.DataAnnotations;
     using System.Data.Entity;
     using System.Data.Entity.ModelConfiguration.Conventions;
     using System.Linq;
@@ -44,10 +45,11 @@
     {
         public int ID { get; set; }
         public string Nom { get; set; }
-        public int Prix { get; set; }
+        public decimal Prix { get; set; }
         public string Description { get; set; }
         public Famille? Famille { get; set; }
         public string Reference { get; set; }
-        public string DateValid { get; set; }
+        public DateTime DateValid { get; set; }
+        public string Image { get; set; }
     }
 }
